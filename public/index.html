@@ -13,7 +13,9 @@
     --muted: #5d665f;
     --border: #dde2dc;
     --accent: #00794a;
+    --accent-strong: #00603b;
     --accent-soft: #e2f2ea;
+    --on-accent: #ffffff;
     --yellow: #f2c400;
     --red: #d81b33;
     --shadow: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
@@ -27,7 +29,9 @@
       --muted: #9aa49d;
       --border: #2f3531;
       --accent: #3fbf86;
+      --accent-strong: #5fd39f;
       --accent-soft: #1d3329;
+      --on-accent: #0b1f15;
       --shadow: none;
     }
   }
@@ -74,18 +78,45 @@
   .results button:hover, .results button:focus { background: var(--surface-2); outline: none; }
   .results .empty { padding: 12px 14px; color: var(--muted); }
 
-  .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; margin-bottom: 12px; }
-  .crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 14px; min-height: 22px; }
-  .export { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
-  .export b { color: var(--text); font-weight: 600; }
-  .export button {
-    padding: 5px 12px; font: inherit; font-weight: 600; color: var(--accent); background: var(--surface);
-    border: 1px solid var(--border); border-radius: 7px; cursor: pointer;
+  .crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 12px; font-size: 14px; min-height: 22px; }
+
+  /* Bouton d'appel dans l'en-tête */
+  .top-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+  .cta {
+    display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border: 0; border-radius: 9px;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--on-accent); background: var(--accent);
+    cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.12);
   }
-  .export button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
-  .export button:disabled { opacity: .5; cursor: progress; }
-  .export small { flex-basis: 100%; text-align: right; font-size: 12px; }
-  .export small:empty { display: none; }
+  .cta:hover { background: var(--accent-strong); }
+  .cta svg, .dl svg, .export-head svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* Carte d'export */
+  .side { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 12px; }
+  .export {
+    background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px; padding: 16px;
+    box-shadow: var(--shadow); scroll-margin-top: 12px;
+  }
+  .export.flash { animation: flash 1.2s ease-out; }
+  @keyframes flash { 0% { box-shadow: 0 0 0 6px var(--accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .export-head { display: flex; align-items: center; gap: 8px; color: var(--accent); }
+  .export-head h3 { margin: 0; font-size: 16px; color: var(--text); }
+  .export-scope { margin: 10px 0 2px; font-size: 14px; color: var(--muted); }
+  .export-scope b { color: var(--text); overflow-wrap: anywhere; }
+  .export-hint { margin: 0 0 12px; font-size: 12px; color: var(--muted); }
+  .export-buttons { display: grid; gap: 8px; }
+  .dl {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 14px; border: 0; border-radius: 9px;
+    font: inherit; text-align: left; color: var(--on-accent); background: var(--accent); cursor: pointer;
+    transition: background .15s, transform .15s;
+  }
+  .dl:hover:not(:disabled) { background: var(--accent-strong); transform: translateY(-1px); }
+  .dl:focus-visible, .cta:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+  .dl:disabled { opacity: .6; cursor: progress; transform: none; }
+  .dl span { display: flex; flex-direction: column; line-height: 1.25; }
+  .dl b { font-size: 15px; }
+  .dl small { font-size: 12px; opacity: .85; }
+  .export-status { margin: 10px 0 0; font-size: 12px; color: var(--accent); font-weight: 600; overflow-wrap: anywhere; }
+  .export-status:empty { display: none; }
   .crumbs button { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); cursor: pointer; }
   .crumbs button:hover { text-decoration: underline; }
   .crumbs .sep { color: var(--muted); }
@@ -109,7 +140,7 @@
   .list .tag { font-size: 11px; color: var(--muted); font-weight: 400; white-space: nowrap; }
   .placeholder { color: var(--muted); font-size: 13px; padding: 12px 8px; }
 
-  .detail { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); position: sticky; top: 12px; }
+  .detail { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); }
   .detail .kind { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); font-weight: 600; }
   .detail h2 { margin: 2px 0 12px; font-size: 20px; overflow-wrap: anywhere; }
   .detail dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; }
@@ -124,8 +155,11 @@
 
   @media (max-width: 1000px) {
     .layout { grid-template-columns: 1fr; }
-    .detail { position: static; order: -1; }
+    .side { position: static; order: -1; display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
     .cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .side { grid-template-columns: 1fr; }
   }
   @media (max-width: 560px) {
     .stats { grid-template-columns: repeat(2, 1fr); }
@@ -139,7 +173,13 @@
 <header>
   <div class="top">
     <h1>Découpage territorial du Bénin</h1>
-    <a id="docs-link" href="/docs" hidden>Documentation de l'API →</a>
+    <div class="top-actions">
+      <a id="docs-link" href="/docs" hidden>Documentation de l'API →</a>
+      <button type="button" class="cta" id="cta-export">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Télécharger les données
+      </button>
+    </div>
   </div>
   <p class="sub">Départements, communes, arrondissements et localités (villages et quartiers). <span class="source" id="source"></span></p>
   <div class="stats">
@@ -156,15 +196,7 @@
     <input id="q" type="search" placeholder="Rechercher une commune, un arrondissement ou une localité…" autocomplete="off" aria-label="Recherche">
     <div class="results" id="results"></div>
   </div>
-  <div class="toolbar">
-    <nav class="crumbs" id="crumbs" aria-label="Fil d'Ariane"></nav>
-    <div class="export" role="group" aria-label="Exporter">
-      <span>Exporter <b id="export-scope">le Bénin entier</b></span>
-      <button type="button" data-format="json" title="JSON imbriqué : départements → communes → arrondissements → localités">JSON</button>
-      <button type="button" data-format="sql" title="Script SQL (CREATE TABLE + INSERT) pour PostgreSQL, MySQL ou SQLite">SQL</button>
-      <small id="export-status" aria-live="polite"></small>
-    </div>
-  </div>
+  <nav class="crumbs" id="crumbs" aria-label="Fil d'Ariane"></nav>
 
   <div class="layout">
     <div class="cols">
@@ -173,7 +205,28 @@
       <section class="col" data-level="2"><div class="col-head"><h3>Arrondissements</h3><small></small></div><input placeholder="Filtrer…" aria-label="Filtrer les arrondissements"><div class="list"></div></section>
       <section class="col" data-level="3"><div class="col-head"><h3>Localités</h3><small></small></div><input placeholder="Filtrer…" aria-label="Filtrer les localités"><div class="list"></div></section>
     </div>
-    <aside class="detail" id="detail"></aside>
+    <aside class="side">
+      <div class="detail" id="detail"></div>
+      <section class="export" id="export" aria-labelledby="export-title">
+        <div class="export-head">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <h3 id="export-title">Télécharger les données</h3>
+        </div>
+        <p class="export-scope">Portée : <b id="export-scope">le Bénin entier</b></p>
+        <p class="export-hint" id="export-hint"></p>
+        <div class="export-buttons">
+          <button type="button" class="dl" data-format="json">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            <span><b>JSON</b><small>Arborescence imbriquée</small></span>
+          </button>
+          <button type="button" class="dl" data-format="sql">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            <span><b>SQL</b><small>PostgreSQL · MySQL · SQLite</small></span>
+          </button>
+        </div>
+        <p class="export-status" id="export-status" aria-live="polite"></p>
+      </section>
+    </aside>
   </div>
 </main>
 
@@ -427,11 +480,14 @@ function currentScope() {
 function renderExportScope() {
   const s = currentScope();
   $('export-scope').textContent = s ? `${s.item.nom} (${LEVELS[s.level].label.toLowerCase()})` : 'le Bénin entier';
+  $('export-hint').textContent = s
+    ? (s.level < 3 ? `Avec toutes ses subdivisions et ses parents. ` : 'Avec ses parents. ') + 'Cliquez sur « Bénin » dans le fil d’Ariane pour tout exporter.'
+    : 'Sélectionnez une entité pour n’exporter qu’elle et ses subdivisions.';
 }
 
 async function exportData(format) {
   const status = $('export-status');
-  const buttons = document.querySelectorAll('.export button');
+  const buttons = document.querySelectorAll('.dl');
   buttons.forEach((b) => (b.disabled = true));
   status.textContent = 'Préparation…';
   try {
@@ -457,7 +513,7 @@ async function exportData(format) {
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     const kb = Math.max(1, Math.round(body.length / 1024));
-    status.textContent = `${name} · ${fmt(kb)} Ko`;
+    status.textContent = `✓ ${name} téléchargé (${fmt(kb)} Ko)`;
   } catch (e) {
     status.textContent = '';
     showError(e);
@@ -465,7 +521,16 @@ async function exportData(format) {
     buttons.forEach((b) => (b.disabled = false));
   }
 }
-document.querySelectorAll('.export button').forEach((b) => b.addEventListener('click', () => exportData(b.dataset.format)));
+document.querySelectorAll('.dl').forEach((b) => b.addEventListener('click', () => exportData(b.dataset.format)));
+// Bouton de l'en-tête : amène à la carte d'export et la fait ressortir.
+$('cta-export').addEventListener('click', () => {
+  const card = $('export');
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  card.classList.remove('flash');
+  void card.offsetWidth; // relance l'animation
+  card.classList.add('flash');
+  card.querySelector('.dl').focus({ preventScroll: true });
+});
 
 /* ------------------------------------------------------------------ *
  * Interface
