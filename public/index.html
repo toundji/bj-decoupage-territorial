@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Découpage territorial du Bénin</title>
+<style>
+  :root {
+    --bg: #f6f7f5;
+    --surface: #ffffff;
+    --surface-2: #eef1ed;
+    --text: #1b1f1c;
+    --muted: #5d665f;
+    --border: #dde2dc;
+    --accent: #00794a;
+    --accent-soft: #e2f2ea;
+    --yellow: #f2c400;
+    --red: #d81b33;
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121513;
+      --surface: #1a1e1b;
+      --surface-2: #232825;
+      --text: #e7ebe8;
+      --muted: #9aa49d;
+      --border: #2f3531;
+      --accent: #3fbf86;
+      --accent-soft: #1d3329;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .flag { display: flex; height: 4px; }
+  .flag span:nth-child(1) { flex: 2; background: var(--accent); }
+  .flag span:nth-child(2) { flex: 3; background: var(--yellow); }
+  .flag span:nth-child(3) { flex: 3; background: var(--red); }
+  header, main { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+  header { padding-top: 24px; }
+  .top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+  .top a { color: var(--accent); font-size: 14px; text-decoration: none; }
+  .top a:hover { text-decoration: underline; }
+  .sub { color: var(--muted); margin: 4px 0 18px; font-size: 14px; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; box-shadow: var(--shadow); }
+  .stat b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: 13px; }
+
+  .search { position: relative; margin-bottom: 14px; }
+  .search input {
+    width: 100%; padding: 11px 14px; font: inherit; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; outline: none;
+  }
+  .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .results {
+    position: absolute; z-index: 10; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12); max-height: 420px; overflow: auto; display: none;
+  }
+  .results.open { display: block; }
+  .results h4 { margin: 0; padding: 8px 14px 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .results button { display: block; width: 100%; text-align: left; padding: 7px 14px; border: 0; background: none; font: inherit; color: var(--text); cursor: pointer; }
+  .results button:hover, .results button:focus { background: var(--surface-2); outline: none; }
+  .results .empty { padding: 12px 14px; color: var(--muted); }
+
+  .crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 12px; font-size: 14px; min-height: 22px; }
+  .crumbs button { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); cursor: pointer; }
+  .crumbs button:hover { text-decoration: underline; }
+  .crumbs .sep { color: var(--muted); }
+
+  .layout { display: grid; grid-template-columns: 1fr 300px; gap: 14px; align-items: start; padding-bottom: 32px; }
+  .cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .col { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); display: flex; flex-direction: column; min-height: 200px; max-height: 70vh; }
+  .col-head { padding: 10px 12px 8px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+  .col-head h3 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+  .col-head small { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .col input { margin: 8px 8px 0; padding: 6px 9px; font: inherit; font-size: 13px; color: var(--text); background: var(--surface-2); border: 1px solid transparent; border-radius: 7px; outline: none; }
+  .col input:focus { border-color: var(--accent); }
+  .list { overflow: auto; padding: 6px; flex: 1; }
+  .list button {
+    display: flex; justify-content: space-between; gap: 6px; width: 100%; text-align: left;
+    padding: 6px 8px; border: 0; border-radius: 6px; background: none; font: inherit; font-size: 14px;
+    color: var(--text); cursor: pointer;
+  }
+  .list button:hover { background: var(--surface-2); }
+  .list button.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .list .tag { font-size: 11px; color: var(--muted); font-weight: 400; white-space: nowrap; }
+  .placeholder { color: var(--muted); font-size: 13px; padding: 12px 8px; }
+
+  .detail { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: var(--shadow); position: sticky; top: 12px; }
+  .detail .kind { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); font-weight: 600; }
+  .detail h2 { margin: 2px 0 12px; font-size: 20px; overflow-wrap: anywhere; }
+  .detail dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; }
+  .detail dt { color: var(--muted); }
+  .detail dd { margin: 0; overflow-wrap: anywhere; }
+  .detail dd button { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-align: left; }
+  .detail dd button:hover { text-decoration: underline; }
+  .detail .api { margin-top: 14px; font-size: 12px; }
+  .detail .api a { color: var(--muted); }
+  .error { background: #fde8eb; color: #8a1020; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; display: none; }
+  .error.open { display: block; }
+
+  @media (max-width: 1000px) {
+    .layout { grid-template-columns: 1fr; }
+    .detail { position: static; order: -1; }
+    .cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .cols { grid-template-columns: 1fr; }
+    .col { max-height: 50vh; }
+  }
+</style>
+</head>
+<body>
+<div class="flag" aria-hidden="true"><span></span><span></span><span></span></div>
+<header>
+  <div class="top">
+    <h1>Découpage territorial du Bénin</h1>
+    <a href="/docs">Documentation de l'API →</a>
+  </div>
+  <p class="sub">Départements, communes, arrondissements et localités (villages et quartiers).</p>
+  <div class="stats">
+    <div class="stat"><b id="n-dep">–</b><span>départements</span></div>
+    <div class="stat"><b id="n-com">–</b><span>communes</span></div>
+    <div class="stat"><b id="n-arr">–</b><span>arrondissements</span></div>
+    <div class="stat"><b id="n-loc">–</b><span>localités</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="error" id="error"></div>
+  <div class="search">
+    <input id="q" type="search" placeholder="Rechercher une commune, un arrondissement ou une localité…" autocomplete="off" aria-label="Recherche">
+    <div class="results" id="results"></div>
+  </div>
+  <nav class="crumbs" id="crumbs" aria-label="Fil d'Ariane"></nav>
+
+  <div class="layout">
+    <div class="cols">
+      <section class="col" data-level="0"><div class="col-head"><h3>Départements</h3><small></small></div><input placeholder="Filtrer…" aria-label="Filtrer les départements"><div class="list"></div></section>
+      <section class="col" data-level="1"><div class="col-head"><h3>Communes</h3><small></small></div><input placeholder="Filtrer…" aria-label="Filtrer les communes"><div class="list"></div></section>
+      <section class="col" data-level="2"><div class="col-head"><h3>Arrondissements</h3><small></small></div><input placeholder="Filtrer…" aria-label="Filtrer les arrondissements"><div class="list"></div></section>
+      <section class="col" data-level="3"><div class="col-head"><h3>Localités</h3><small></small></div><input placeholder="Filtrer…" aria-label="Filtrer les localités"><div class="list"></div></section>
+    </div>
+    <aside class="detail" id="detail"></aside>
+  </div>
+</main>
+
+<script>
+const API = '/api/v1';
+const LEVELS = [
+  { key: 'departement', label: 'Département', path: 'departements', placeholder: '' },
+  { key: 'commune', label: 'Commune', path: 'communes', placeholder: 'Choisissez un département.' },
+  { key: 'arrondissement', label: 'Arrondissement', path: 'arrondissements', placeholder: 'Choisissez une commune.' },
+  { key: 'localite', label: 'Localité', path: 'localites', placeholder: 'Choisissez un arrondissement.' },
+];
+// Liste affichée et élément sélectionné, par niveau.
+const state = { items: [[], [], [], []], selected: [null, null, null, null] };
+const cols = [...document.querySelectorAll('.col')];
+const $ = (id) => document.getElementById(id);
+
+async function get(path) {
+  const res = await fetch(API + '/' + path);
+  if (!res.ok) throw new Error(`${res.status} sur /${path}`);
+  return res.json();
+}
+const rows = (r) => (Array.isArray(r) ? r : r.data);
+const showError = (e) => { $('error').textContent = 'Erreur : ' + e.message; $('error').classList.add('open'); };
+const fmt = (n) => n.toLocaleString('fr-FR');
+const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+
+// Charge les enfants de l'élément choisi au niveau `level - 1`.
+async function childrenOf(level, parentId) {
+  if (level === 0) return rows(await get('departements'));
+  const parentPath = LEVELS[level - 1].path;
+  const childPath = LEVELS[level].path;
+  return rows(await get(`${parentPath}/${parentId}/${childPath}?limit=500`));
+}
+
+function tagFor(level, item) {
+  if (level === 0) return item.code || '';
+  if (level === 1 && item.statut === 'PARTICULIER') return 'particulier';
+  if (level === 3 && item.type) return item.type.toLowerCase();
+  return '';
+}
+
+function renderCol(level) {
+  const col = cols[level];
+  const filter = col.querySelector('input').value.trim().toLowerCase();
+  const items = state.items[level];
+  const list = col.querySelector('.list');
+  col.querySelector('small').textContent = items.length ? fmt(items.length) : '';
+  list.replaceChildren();
+  if (!items.length) {
+    const msg = level > 0 && !state.selected[level - 1] ? LEVELS[level].placeholder : 'Aucune donnée.';
+    list.append(el('div', { className: 'placeholder', textContent: msg }));
+    return;
+  }
+  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const f = norm(filter);
+  for (const item of items) {
+    if (f && !norm(item.nom).includes(f)) continue;
+    const btn = el('button', { type: 'button' }, el('span', { textContent: item.nom }), el('span', { className: 'tag', textContent: tagFor(level, item) }));
+    if (state.selected[level]?.id === item.id) btn.classList.add('on');
+    btn.addEventListener('click', () => select(level, item.id));
+    list.append(btn);
+  }
+}
+
+// Sélectionne l'élément `id` au niveau `level`, vide les niveaux inférieurs et charge le suivant.
+async function select(level, id, { updateHash = true } = {}) {
+  const item = state.items[level].find((x) => x.id === id);
+  if (!item) return;
+  state.selected[level] = item;
+  for (let l = level + 1; l < 4; l++) { state.selected[l] = null; state.items[l] = []; cols[l].querySelector('input').value = ''; }
+  for (let l = level; l < 4; l++) renderCol(l);
+  renderCrumbs();
+  if (updateHash) history.replaceState(null, '', `#/${LEVELS[level].key}/${id}`);
+  if (level < 3) {
+    try { state.items[level + 1] = await childrenOf(level + 1, id); } catch (e) { showError(e); }
+    if (state.selected[level]?.id !== id) return; // sélection changée entre-temps
+    renderCol(level + 1);
+  }
+  renderDetail(level, item);
+}
+
+function renderCrumbs() {
+  const c = $('crumbs');
+  c.replaceChildren();
+  const root = el('button', { type: 'button', textContent: 'Bénin' });
+  root.addEventListener('click', reset);
+  c.append(root);
+  state.selected.forEach((s, l) => {
+    if (!s) return;
+    c.append(el('span', { className: 'sep', textContent: '›' }));
+    const b = el('button', { type: 'button', textContent: s.nom });
+    b.addEventListener('click', () => select(l, s.id));
+    c.append(b);
+  });
+}
+
+function link(text, onClick) {
+  const b = el('button', { type: 'button', textContent: text });
+  b.addEventListener('click', onClick);
+  return b;
+}
+
+let detailSeq = 0;
+async function renderDetail(level, item) {
+  const seq = ++detailSeq;
+  const stale = () => seq !== detailSeq; // un autre détail a été demandé entre-temps
+  const d = $('detail');
+  const L = LEVELS[level];
+  const dl = el('dl');
+  const row = (k, v) => { if (v === null || v === undefined || v === '') return; dl.append(el('dt', { textContent: k }), el('dd', {}, v)); };
+  d.replaceChildren(el('div', { className: 'kind', textContent: L.label }), el('h2', { textContent: item.nom }), dl);
+  row('Identifiant', String(item.id));
+  row('Code', item.code);
+
+  try {
+    const full = await get(`${L.path}/${item.id}`);
+    if (stale()) return;
+    if (level === 0) {
+      row('Groupe', full.groupe);
+      const h = await get(`departements/${item.id}/homologue`).catch(() => null);
+      if (stale()) return;
+      if (h) row('Homologue', link(h.nom, () => navigate('departement', h.id)));
+      if (full.chefLieu) row('Chef-lieu', link(full.chefLieu.nom, () => navigate('commune', full.chefLieu.id)));
+    }
+    if (level === 1) {
+      row('Statut', full.statut === 'PARTICULIER' ? 'Particulier' : 'Ordinaire');
+      if (full.chefLieu) row('Chef-lieu', link(full.chefLieu.nom, () => navigate('arrondissement', full.chefLieu.id)));
+    }
+    if (level === 2 && full.chefLieu) row('Chef-lieu', link(full.chefLieu.nom, () => navigate('localite', full.chefLieu.id)));
+    if (level === 3) row('Type', full.type ? full.type.toLowerCase() : 'non renseigné');
+    if (level < 3) row(LEVELS[level + 1].label + 's', fmt(state.items[level + 1].length));
+    if (level === 3) {
+      const r = await get(`localites/${item.id}/rues?limit=1`).catch(() => null);
+      if (stale()) return;
+      if (r) row('Rues', fmt(r.total));
+    }
+  } catch (e) { if (stale()) return; showError(e); }
+
+  const api = `${API}/${L.path}/${item.id}`;
+  d.append(el('div', { className: 'api' }, el('a', { href: api, target: '_blank', rel: 'noopener', textContent: 'GET ' + api })));
+}
+
+function renderEmptyDetail() {
+  detailSeq++;
+  $('detail').replaceChildren(
+    el('div', { className: 'kind', textContent: 'République du Bénin' }),
+    el('h2', { textContent: 'Sélectionnez une entité' }),
+    el('p', { className: 'placeholder', style: 'padding:0', textContent: 'Parcourez la hiérarchie colonne par colonne, ou utilisez la recherche pour aller directement à une commune, un arrondissement ou une localité.' }),
+  );
+}
+
+async function reset() {
+  for (let l = 0; l < 4; l++) { state.selected[l] = null; if (l) state.items[l] = []; cols[l].querySelector('input').value = ''; }
+  for (let l = 0; l < 4; l++) renderCol(l);
+  renderCrumbs();
+  renderEmptyDetail();
+  history.replaceState(null, '', location.pathname);
+}
+
+// Va directement à une entité : on remonte sa hiérarchie puis on sélectionne chaque niveau.
+async function navigate(kind, id) {
+  try {
+    const level = LEVELS.findIndex((l) => l.key === kind);
+    if (level < 0) return;
+    const full = await get(`${LEVELS[level].path}/${id}`);
+    const chain = [];
+    let node = full;
+    for (let l = level; l >= 0; l--) {
+      chain[l] = node.id;
+      node = l === 3 ? node.arrondissement : l === 2 ? node.commune : l === 1 ? node.departement : null;
+    }
+    for (let l = 0; l <= level; l++) {
+      if (l > 0 && !state.items[l].some((x) => x.id === chain[l])) {
+        state.items[l] = await childrenOf(l, chain[l - 1]);
+      }
+      await select(l, chain[l], { updateHash: l === level });
+    }
+    cols[level].querySelector('.on')?.scrollIntoView({ block: 'nearest' });
+  } catch (e) { showError(e); }
+}
+
+// Recherche globale.
+let searchTimer, searchSeq = 0;
+$('q').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(runSearch, 220);
+});
+$('q').addEventListener('keydown', (e) => { if (e.key === 'Escape') { $('results').classList.remove('open'); e.target.blur(); } });
+document.addEventListener('click', (e) => { if (!e.target.closest('.search')) $('results').classList.remove('open'); });
+$('q').addEventListener('focus', () => { if ($('results').childElementCount) $('results').classList.add('open'); });
+
+async function runSearch() {
+  const q = $('q').value.trim();
+  const box = $('results');
+  if (q.length < 2) { box.classList.remove('open'); box.replaceChildren(); return; }
+  const seq = ++searchSeq;
+  try {
+    const kinds = LEVELS.slice(1);
+    const res = await Promise.all(kinds.map((k) => get(`${k.path}?q=${encodeURIComponent(q)}&limit=8`)));
+    if (seq !== searchSeq) return;
+    box.replaceChildren();
+    res.forEach((r, i) => {
+      if (!r.data.length) return;
+      box.append(el('h4', { textContent: `${kinds[i].label}s (${fmt(r.total)})` }));
+      for (const item of r.data) {
+        const b = el('button', { type: 'button', textContent: item.nom });
+        b.addEventListener('click', () => {
+          box.classList.remove('open');
+          navigate(kinds[i].key, item.id);
+        });
+        box.append(b);
+      }
+    });
+    if (!box.childElementCount) box.append(el('div', { className: 'empty', textContent: 'Aucun résultat.' }));
+    box.classList.add('open');
+  } catch (e) { showError(e); }
+}
+
+cols.forEach((col, l) => col.querySelector('input').addEventListener('input', () => renderCol(l)));
+
+async function init() {
+  renderEmptyDetail();
+  renderCrumbs();
+  try {
+    state.items[0] = await childrenOf(0);
+    for (let l = 0; l < 4; l++) renderCol(l);
+    const [c, a, lo] = await Promise.all(['communes', 'arrondissements', 'localites'].map((p) => get(`${p}?limit=1`)));
+    $('n-dep').textContent = fmt(state.items[0].length);
+    $('n-com').textContent = fmt(c.total);
+    $('n-arr').textContent = fmt(a.total);
+    $('n-loc').textContent = fmt(lo.total);
+    fromHash();
+  } catch (e) { showError(e); }
+}
+// Liens directs : #/departement/3, #/commune/16, #/arrondissement/1, #/localite/1
+function fromHash() {
+  const m = location.hash.match(/^#\/(\w+)\/(\d+)$/);
+  if (m) navigate(m[1], Number(m[2]));
+}
+window.addEventListener('hashchange', fromHash);
+init();
+</script>
+</body>
+</html>
