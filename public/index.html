@@ -3,7 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Découpage territorial du Bénin</title>
+<title>Découpage territorial du Bénin : départements, communes, arrondissements et villages</title>
+<meta name="description" content="Liste complète et à jour du découpage territorial du Bénin : 12 départements, 77 communes, 546 arrondissements et 5 303 villages et quartiers de ville. Recherche, navigation et téléchargement gratuit en JSON et SQL.">
+<meta name="keywords" content="découpage territorial Bénin, départements du Bénin, communes du Bénin, arrondissements du Bénin, villages du Bénin, quartiers de ville, liste des communes, base de données Bénin, JSON, SQL">
+<meta name="author" content="toundji">
+<meta name="robots" content="index, follow, max-snippet:-1">
+<link rel="canonical" href="https://toundji.github.io/bj-decoupage-territorial/">
+<meta name="theme-color" content="#00794a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='12' height='32' fill='%2300794a'/%3E%3Crect x='12' width='20' height='16' fill='%23fcd116'/%3E%3Crect x='12' y='16' width='20' height='16' fill='%23e8112d'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Découpage territorial du Bénin">
+<meta property="og:title" content="Découpage territorial du Bénin : départements, communes, arrondissements et villages">
+<meta property="og:description" content="12 départements, 77 communes, 546 arrondissements et 5 303 villages et quartiers. Recherche et téléchargement gratuit en JSON et SQL.">
+<meta property="og:url" content="https://toundji.github.io/bj-decoupage-territorial/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Découpage territorial du Bénin">
+<meta name="twitter:description" content="12 départements, 77 communes, 546 arrondissements et 5 303 villages et quartiers. Recherche et téléchargement gratuit en JSON et SQL.">
+<!-- seo:jsonld:start -->
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://toundji.github.io/bj-decoupage-territorial/#site","url":"https://toundji.github.io/bj-decoupage-territorial/","name":"Découpage territorial du Bénin","inLanguage":"fr"},{"@type":"Dataset","@id":"https://toundji.github.io/bj-decoupage-territorial/#dataset","name":"Découpage territorial du Bénin","alternateName":["Liste des communes du Bénin","Départements, communes, arrondissements et villages du Bénin"],"description":"Découpage administratif complet de la République du Bénin : 12 départements, 77 communes, 546 arrondissements et 5303 villages et quartiers de ville, avec leurs liens hiérarchiques, chefs-lieux et départements homologues. Téléchargeable en JSON et en SQL.","url":"https://toundji.github.io/bj-decoupage-territorial/","sameAs":"https://github.com/toundji/bj-decoupage-territorial","isBasedOn":"https://github.com/nioperas06/bj-decoupage-territorial","keywords":["Bénin","découpage territorial","départements","communes","arrondissements","villages","quartiers de ville","administration territoriale"],"inLanguage":"fr","isAccessibleForFree":true,"license":"https://opensource.org/licenses/MIT","creator":{"@type":"Person","name":"toundji","url":"https://github.com/toundji"},"dateModified":"2026-11-06","spatialCoverage":{"@type":"Place","name":"Bénin","address":{"@type":"PostalAddress","addressCountry":"BJ"}},"variableMeasured":["département","commune","arrondissement","village ou quartier de ville","chef-lieu","département homologue"],"distribution":[{"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://toundji.github.io/bj-decoupage-territorial/data/decoupage.json"}]},{"@type":"FAQPage","@id":"https://toundji.github.io/bj-decoupage-territorial/#faq","mainEntity":[{"@type":"Question","name":"Combien de départements compte le Bénin ?","acceptedAnswer":{"@type":"Answer","text":"Le Bénin compte 12 départements : Alibori, Atacora, Atlantique, Borgou, Collines, Couffo, Donga, Littoral, Mono, Oueme, Plateau, Zou."}},{"@type":"Question","name":"Combien de communes compte le Bénin ?","acceptedAnswer":{"@type":"Answer","text":"Le Bénin compte 77 communes, dont 3 à statut particulier : Cotonou, Parakou, Porto-Novo."}},{"@type":"Question","name":"Combien d’arrondissements et de villages compte le Bénin ?","acceptedAnswer":{"@type":"Answer","text":"Les communes sont divisées en 546 arrondissements, eux-mêmes composés de 5 303 villages (en zone rurale) et quartiers de ville (en zone urbaine)."}},{"@type":"Question","name":"Quels sont les départements homologues du Bénin ?","acceptedAnswer":{"@type":"Answer","text":"Les départements sont regroupés deux à deux : Atacora et Donga ; Atlantique et Littoral ; Borgou et Alibori ; Mono et Couffo ; Oueme et Plateau ; Zou et Collines."}},{"@type":"Question","name":"Comment télécharger la liste des communes du Bénin ?","acceptedAnswer":{"@type":"Answer","text":"Utilisez le bouton « Télécharger les données » : le Bénin entier, ou un département, une commune ou un arrondissement avec ses subdivisions, au format JSON ou SQL (PostgreSQL, MySQL, SQLite). Gratuit et sans inscription."}}]}]}</script>
+<!-- seo:jsonld:end -->
 <style>
   :root {
     --bg: #f6f7f5;
@@ -153,6 +172,24 @@
   .error { background: #fde8eb; color: #8a1020; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; display: none; }
   .error.open { display: block; }
 
+  /* Présentation et liste complète (contenu statique, indexable) */
+  .about { max-width: 1240px; margin: 0 auto; padding: 8px 16px 40px; }
+  .about h2 { font-size: 20px; margin: 8px 0 8px; }
+  .about > p { color: var(--muted); max-width: 820px; margin: 0 0 10px; }
+  .about .faq { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 16px 0 20px; }
+  .about .faq div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .about .faq h3 { margin: 0 0 4px; font-size: 15px; }
+  .about .faq p { margin: 0; font-size: 14px; color: var(--muted); }
+  .about details { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; }
+  .about summary { cursor: pointer; padding: 10px 14px; font-weight: 600; }
+  .about summary h3 { display: inline; font-size: 15px; margin: 0; }
+  .about summary span { font-weight: 400; color: var(--muted); font-size: 13px; }
+  .about details ul { margin: 0; padding: 0 14px 12px 32px; font-size: 14px; }
+  .about details li { margin: 4px 0; }
+  .about details li span { color: var(--muted); }
+  .about footer { margin-top: 20px; font-size: 13px; color: var(--muted); }
+  .about a { color: var(--accent); }
+
   @media (max-width: 1000px) {
     .layout { grid-template-columns: 1fr; }
     .side { position: static; order: -1; display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
@@ -229,6 +266,159 @@
     </aside>
   </div>
 </main>
+
+<!-- seo:content:start -->
+<section class="about" aria-labelledby="about-title">
+  <h2 id="about-title">Le découpage territorial du Bénin en bref</h2>
+  <p>La République du Bénin est organisée en <strong>12 départements</strong>, <strong>77 communes</strong>, <strong>546 arrondissements</strong> et <strong>5 303 villages et quartiers de ville</strong>. Cette page permet de parcourir ce découpage administratif, de rechercher une localité et de télécharger les données au format JSON ou SQL.</p>
+  <div class="faq">
+    <div><h3>Combien de départements compte le Bénin ?</h3><p>Le Bénin compte 12 départements : Alibori, Atacora, Atlantique, Borgou, Collines, Couffo, Donga, Littoral, Mono, Oueme, Plateau, Zou.</p></div>
+    <div><h3>Combien de communes compte le Bénin ?</h3><p>Le Bénin compte 77 communes, dont 3 à statut particulier : Cotonou, Parakou, Porto-Novo.</p></div>
+    <div><h3>Combien d’arrondissements et de villages compte le Bénin ?</h3><p>Les communes sont divisées en 546 arrondissements, eux-mêmes composés de 5 303 villages (en zone rurale) et quartiers de ville (en zone urbaine).</p></div>
+    <div><h3>Quels sont les départements homologues du Bénin ?</h3><p>Les départements sont regroupés deux à deux : Atacora et Donga ; Atlantique et Littoral ; Borgou et Alibori ; Mono et Couffo ; Oueme et Plateau ; Zou et Collines.</p></div>
+    <div><h3>Comment télécharger la liste des communes du Bénin ?</h3><p>Utilisez le bouton « Télécharger les données » : le Bénin entier, ou un département, une commune ou un arrondissement avec ses subdivisions, au format JSON ou SQL (PostgreSQL, MySQL, SQLite). Gratuit et sans inscription.</p></div>
+  </div>
+  <h2>Liste des départements, communes et arrondissements du Bénin</h2>
+  <details>
+    <summary><h3>Département Alibori</h3> <span>— 6 communes, 41 arrondissements, chef-lieu Kandi</span></summary>
+    <ul>
+      <li><strong>Banikoara</strong> <span>— 10 arrondissements, 112 villages et quartiers :</span> Banikoara, Founougo, Gomparou, Goumori, Kokey, Kokiborou, Ounet, Somperoukou, Soroko, Toura</li>
+      <li><strong>Gogounou</strong> <span>— 6 arrondissements, 66 villages et quartiers :</span> Bagou, Gogounou, Gounarou, Sori, Sougou-Kpan-Trossi, Wara</li>
+      <li><strong>Kandi</strong> <span>— 10 arrondissements, 85 villages et quartiers :</span> Angaradebou, Bensekou, Donwari, Kandi 1, Kandi 2, Kandi 3, Kassakou, Saah, Sam, Sonsoro</li>
+      <li><strong>Karimama</strong> <span>— 5 arrondissements, 37 villages et quartiers :</span> Birni Lafia, Bogo-Bogo, Karimama, Kompa, Monsey</li>
+      <li><strong>Malanville</strong> <span>— 5 arrondissements, 58 villages et quartiers :</span> Garou, Guene, Madecali, Malanville, Toumboutou</li>
+      <li><strong>Segbana</strong> <span>— 5 arrondissements, 40 villages et quartiers :</span> Libante, Liboussou, Lougou, Segbana, Sokotindji</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Atacora</h3> <span>— 9 communes, 47 arrondissements, chef-lieu Natitingou</span></summary>
+    <ul>
+      <li><strong>Boukoumbe</strong> <span>— 7 arrondissements, 92 villages et quartiers :</span> Boukoumbe, Dipoli, Korontiere, Koussoucoingou, Manta, Nata, Tabota</li>
+      <li><strong>Cobly</strong> <span>— 4 arrondissements, 36 villages et quartiers :</span> Cobly, Datori, Kountori, Tapoga</li>
+      <li><strong>Kerou</strong> <span>— 4 arrondissements, 43 villages et quartiers :</span> Brignamaro, Firou, Kaobagou, Kerou</li>
+      <li><strong>Kouande</strong> <span>— 6 arrondissements, 72 villages et quartiers :</span> Birni, Chabi-Couma, Foo-Tance, Guilmaro, Kouande, Oroukayo</li>
+      <li><strong>Materi</strong> <span>— 6 arrondissements, 77 villages et quartiers :</span> Dassari, Gouande, Materi, Nodi, Tantega, Tchanhouncossi</li>
+      <li><strong>Natitingou</strong> <span>— 9 arrondissements, 76 villages et quartiers :</span> Kotopounga, Kouaba, Kouandata, Natitingou I, Natitingou Ii, Natitingou Iii, Peporiyakou, Perma, Tchoumi-Tchoumi</li>
+      <li><strong>Ouassa-Pehunco</strong> <span>— 3 arrondissements, 35 villages et quartiers :</span> Gnemasson, Pehunco, Tobre</li>
+      <li><strong>Tanguieta</strong> <span>— 5 arrondissements, 59 villages et quartiers :</span> Cotiakou, N'Dahonta, Taiacou, Tanguieta, Tanongou</li>
+      <li><strong>Toukountouna</strong> <span>— 3 arrondissements, 30 villages et quartiers :</span> Kouarfa, Tampegre, Toukountouna</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Atlantique</h3> <span>— 8 communes, 74 arrondissements, chef-lieu Allada</span></summary>
+    <ul>
+      <li><strong>Abomey-Calavi</strong> <span>— 9 arrondissements, 150 villages et quartiers :</span> Abomey-Calavi, Akassato, Godomey, Golo-Djigbe, Hevie, Kpanroun, Ouedo, Togba, Zinvie</li>
+      <li><strong>Allada</strong> <span>— 12 arrondissements, 112 villages et quartiers :</span> Agbanou, Ahouannonzoun, Allada Centre, Attogon, Avakpa, Ayou, Hinvi, Lissegazoun, Lon-Agonmey, Sekou, Togoudo, Tokpa</li>
+      <li><strong>Kpomasse</strong> <span>— 9 arrondissements, 76 villages et quartiers :</span> Aganmalome, Agbanto, Agonkanme, Dedome, Dekanme, Kpomasse Centre, Segbeya, Segbohoue, Tokpa-Dome</li>
+      <li><strong>Ouidah</strong> <span>— 10 arrondissements, 77 villages et quartiers :</span> Avlekete, Djegbadji, Gakpe, Houakpe-Daho, Ouidah I, Ouidah Ii, Ouidah Iii, Ouidah Iv, Pahou, Savi</li>
+      <li><strong>So-Ava</strong> <span>— 7 arrondissements, 69 villages et quartiers :</span> Ahomey-Lokpo, Dekanmey, Ganvie 1, Ganvie 2, Houedo-Aguekon, So-Ava, Vekky</li>
+      <li><strong>Toffo</strong> <span>— 10 arrondissements, 76 villages et quartiers :</span> Ague, Colli, Coussi, Dame, Djanglanme, Houegbo, Kpome, Sehoue, Sey, Toffo</li>
+      <li><strong>Tori-Bossito</strong> <span>— 6 arrondissements, 58 villages et quartiers :</span> Avame, Azohoue-Aliho, Azohoue-Cada, Tori-Bossito, Tori-Cada, Tori-Gare</li>
+      <li><strong>Ze</strong> <span>— 11 arrondissements, 101 villages et quartiers :</span> Adjan, Dawe, Djigbe, Dodji-Bata, Hekanme, Koundokpoe, Sedje-Denou, Sedje-Houegoudo, Tangbo, Yokpo, Ze</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Borgou</h3> <span>— 8 communes, 43 arrondissements, chef-lieu Parakou</span></summary>
+    <ul>
+      <li><strong>Bembereke</strong> <span>— 5 arrondissements, 62 villages et quartiers :</span> Bembereke, Beroubouay, Bouanri, Gamia, Ina</li>
+      <li><strong>Kalale</strong> <span>— 6 arrondissements, 79 villages et quartiers :</span> Basso, Bouca, Derassi, Dunkassa, Kalale, Peonga</li>
+      <li><strong>N'Dali</strong> <span>— 5 arrondissements, 64 villages et quartiers :</span> Bori, Gbegourou, N'Dali, Ouenou, Sirarou</li>
+      <li><strong>Nikki</strong> <span>— 7 arrondissements, 91 villages et quartiers :</span> Biro, Gnonkourokali, Nikki, Ouenou, Serekali, Suya, Tasso</li>
+      <li><strong>Parakou</strong> (statut particulier) <span>— 3 arrondissements, 58 villages et quartiers :</span> 1er Arrondissement, 2eme Arrondissement, 3eme Arrondissement</li>
+      <li><strong>Perere</strong> <span>— 6 arrondissements, 61 villages et quartiers :</span> Gninsy, Guinagourou, Kpebie, Pane, Perere, Sontou</li>
+      <li><strong>Sinende</strong> <span>— 4 arrondissements, 43 villages et quartiers :</span> Fo-Boure, Sekere, Sikki, Sinende</li>
+      <li><strong>Tchaourou</strong> <span>— 7 arrondissements, 90 villages et quartiers :</span> Alafiarou, Beterou, Goro, Kika, Sanson, Tchaourou, Tchatchou</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Collines</h3> <span>— 6 communes, 60 arrondissements, chef-lieu Dassa-Zoume</span></summary>
+    <ul>
+      <li><strong>Bante</strong> <span>— 9 arrondissements, 49 villages et quartiers :</span> Agoua, Akpassi, Atokolibe, Bante, Bobe, Gouka, Koko, Lougba, Pira</li>
+      <li><strong>Dassa-Zoume</strong> <span>— 10 arrondissements, 93 villages et quartiers :</span> Akoffodjoule, Dassa I, Dassa Ii, Gbaffo, Kere, Kpingni, Lema, Paouingnan, Soclogbo, Tre</li>
+      <li><strong>Glazoue</strong> <span>— 10 arrondissements, 68 villages et quartiers :</span> Aklampa, Assante, Glazoue, Gome, Kpakpaza, Magoumi, Ouedeme, Sokponta, Thio, Zaffe</li>
+      <li><strong>Ouesse</strong> <span>— 9 arrondissements, 63 villages et quartiers :</span> Challa-Ogoi, Djegbe, Gbanlin, Ikemon, Kilibo, Laminou, Odougba, Ouesse, Toui</li>
+      <li><strong>Savalou</strong> <span>— 14 arrondissements, 111 villages et quartiers :</span> Djalloukou, Doume, Gobada, Kpataba, Lahotan, Lema, Logozohe, Monkpa, Ottola, Ouesse, Savalou-Aga, Savalou-Agbado, Savalou-Attake, Tchetti</li>
+      <li><strong>Save</strong> <span>— 8 arrondissements, 60 villages et quartiers :</span> Adido, Besse, Boni, Kaboua, Offe, Okpara, Plateau, Sakin</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Couffo</h3> <span>— 6 communes, 50 arrondissements, chef-lieu Aplahoue</span></summary>
+    <ul>
+      <li><strong>Aplahoue</strong> <span>— 7 arrondissements, 92 villages et quartiers :</span> Aplahoue, Atomey, Azove, Dekpo-Centre, Godohou, Kissamey, Lonkly</li>
+      <li><strong>Djakotomey</strong> <span>— 10 arrondissements, 84 villages et quartiers :</span> Adjintimey, Betoumey, Djakotomey I, Djakotomey Ii, Gohomey, Houegamey, Kinkinhoue, Kokohoue, Kpoba, Sokouhoue</li>
+      <li><strong>Dogbo</strong> <span>— 7 arrondissements, 65 villages et quartiers :</span> Ayomi, Deve, Honton, Lokogohoue, Madjre, Tota, Totchangni Centre</li>
+      <li><strong>Klouekanmey</strong> <span>— 8 arrondissements, 76 villages et quartiers :</span> Adjahonme, Ahogbeya, Ayahohoue, Djotto, Hondjin, Klouekanme, Lanta, Tchikpe</li>
+      <li><strong>Lalo</strong> <span>— 11 arrondissements, 67 villages et quartiers :</span> Adoukandji, Ahodjinnako, Ahomadegbe, Banigbe, Gnizounme, Hlassame, Lalo, Lokogba, Tchito, Tohou, Zalli</li>
+      <li><strong>Toviklin</strong> <span>— 7 arrondissements, 65 villages et quartiers :</span> Adjido, Avedjin, Doko, Houedogli, Missinko, Tannou-Gola, Toviklin</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Donga</h3> <span>— 4 communes, 26 arrondissements, chef-lieu Djougou</span></summary>
+    <ul>
+      <li><strong>Bassila</strong> <span>— 4 arrondissements, 52 villages et quartiers :</span> Aledjo, Bassila, Manigri, Penessoulou</li>
+      <li><strong>Copargo</strong> <span>— 4 arrondissements, 46 villages et quartiers :</span> Anandana, Copargo, Pabegou, Singre</li>
+      <li><strong>Djougou</strong> <span>— 12 arrondissements, 122 villages et quartiers :</span> Barei, Barienou, Bellefoungou, Bougou, Djougou I, Djougou Ii, Djougou Iii, Koloconde, Onklou, Partago, Pelebina, Serou</li>
+      <li><strong>Ouake</strong> <span>— 6 arrondissements, 61 villages et quartiers :</span> Badjoude, Komde, Ouake, Semere 1, Semere 2, Tchalinga</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Littoral</h3> <span>— 1 communes, 13 arrondissements, chef-lieu Cotonou</span></summary>
+    <ul>
+      <li><strong>Cotonou</strong> (statut particulier) <span>— 13 arrondissements, 166 villages et quartiers :</span> 10eme Arrondissement, 11eme Arrondissement, 12eme Arrondissement, 13eme Arrondissement, 1er Arrondissement, 2eme Arrondissement, 3eme Arrondissement, 4eme Arrondissement, 5eme Arrondissement, 6eme Arrondissement, 7eme Arrondissement, 8eme Arrondissement, 9eme Arrondissement</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Mono</h3> <span>— 6 communes, 35 arrondissements, chef-lieu Lokossa</span></summary>
+    <ul>
+      <li><strong>Athieme</strong> <span>— 5 arrondissements, 61 villages et quartiers :</span> Adohoun, Atchannou, Athieme, Dedekpoe, Kpinnou</li>
+      <li><strong>Bopa</strong> <span>— 7 arrondissements, 83 villages et quartiers :</span> Agbodji, Badazouin, Bopa, Gbakpodji, Lobogo, Possotome, Yegodoe</li>
+      <li><strong>Come</strong> <span>— 5 arrondissements, 51 villages et quartiers :</span> Agatogbo, Akodeha, Come, Ouedeme-Pedah, Oumako</li>
+      <li><strong>Grand-Popo</strong> <span>— 7 arrondissements, 60 villages et quartiers :</span> Adjaha, Agoue, Avlo, Djanglanmey, Gbehoue, Grand-Popo, Sazue</li>
+      <li><strong>Houeyogbe</strong> <span>— 6 arrondissements, 80 villages et quartiers :</span> Dahe, Doutou, Honhoue, Houeyogbe, Se, Zoungbonou</li>
+      <li><strong>Lokossa</strong> <span>— 5 arrondissements, 65 villages et quartiers :</span> Agame, Houin, Koudo, Lokossa, Ouedeme-Adja</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Oueme</h3> <span>— 9 communes, 52 arrondissements, chef-lieu Porto-Novo</span></summary>
+    <ul>
+      <li><strong>Adjarra</strong> <span>— 6 arrondissements, 53 villages et quartiers :</span> Adjarra 1, Adjarra 2, Aglogbe, Honvie, Malanhoui, Mededjonou</li>
+      <li><strong>Adjohoun</strong> <span>— 8 arrondissements, 64 villages et quartiers :</span> Adjohoun, Akpadanou, Awonou, Azowlisse, Deme, Gangban, Kode, Togbota</li>
+      <li><strong>Aguegues</strong> <span>— 3 arrondissements, 23 villages et quartiers :</span> Avagbodji, Houedome, Zoungame</li>
+      <li><strong>Akpro-Misserete</strong> <span>— 5 arrondissements, 50 villages et quartiers :</span> Akpro-Misserete, Gome-Sota, Katagon, Vakon, Zoungbome</li>
+      <li><strong>Avrankou</strong> <span>— 7 arrondissements, 59 villages et quartiers :</span> Atchoukpa, Avrankou, Djomon, Gbozoume, Kouti, Ouanho, Sado</li>
+      <li><strong>Bonou</strong> <span>— 5 arrondissements, 34 villages et quartiers :</span> Affame, Atchonsa, Bonou, Dame-Wogon, Hounvigue</li>
+      <li><strong>Dangbo</strong> <span>— 7 arrondissements, 50 villages et quartiers :</span> Dangbo, Dekin, Gbeko, Houedomey, Hozin, Kessounou, Zoungue</li>
+      <li><strong>Porto-Novo</strong> (statut particulier) <span>— 5 arrondissements, 100 villages et quartiers :</span> 1er Arrondissement, 2eme Arrondissement, 3eme Arrondissement, 4eme Arrondissement, 5eme Arrondissement</li>
+      <li><strong>Seme-Podji</strong> <span>— 6 arrondissements, 55 villages et quartiers :</span> Agblangandan, Aholouyeme, Djeregbe, Ekpe, Seme-Podji, Tohoue</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Plateau</h3> <span>— 5 communes, 29 arrondissements, chef-lieu Pobe</span></summary>
+    <ul>
+      <li><strong>Adja-Ouere</strong> <span>— 6 arrondissements, 76 villages et quartiers :</span> Adja-Ouere, Ikpinle, Kpoulou, Masse, Oko-Akare, Tatonnonkon</li>
+      <li><strong>Ifangni</strong> <span>— 6 arrondissements, 69 villages et quartiers :</span> Banigbe, Daagbe, Ifangni, Ko-Koumolou, Lagbe, Tchaada</li>
+      <li><strong>Ketou</strong> <span>— 6 arrondissements, 79 villages et quartiers :</span> Adakplame, Idigny, Ketou, Kpankou, Odometa, Okpometa</li>
+      <li><strong>Pobe</strong> <span>— 5 arrondissements, 58 villages et quartiers :</span> Ahoyeye, Igana, Issaba, Pobe, Towe</li>
+      <li><strong>Sakete</strong> <span>— 6 arrondissements, 81 villages et quartiers :</span> Aguidi, Ita-Djebou, Sakete 1, Sakete 2, Takon, Yoko</li>
+    </ul>
+  </details>
+  <details>
+    <summary><h3>Département Zou</h3> <span>— 9 communes, 76 arrondissements, chef-lieu Abomey</span></summary>
+    <ul>
+      <li><strong>Abomey</strong> <span>— 7 arrondissements, 41 villages et quartiers :</span> Agbokpa, Detohou, Djegbe, Hounli, Sehoun, Vidole, Zounzonme</li>
+      <li><strong>Agbangnizoun</strong> <span>— 10 arrondissements, 53 villages et quartiers :</span> Adanhondjigo, Adingnigon, Agbangnizoun, Kinta, Kpota, Lissazounme, Sahe, Sinwe, Tanve, Zoungoundo</li>
+      <li><strong>Bohicon</strong> <span>— 10 arrondissements, 66 villages et quartiers :</span> Agongointo, Avogbanna, Bohicon I, Bohicon Ii, Gnidjazoun, Lissezoun, Ouassaho, Passagon, Saclo, Sodohome</li>
+      <li><strong>Cove</strong> <span>— 8 arrondissements, 40 villages et quartiers :</span> Adogbe, Gounli, Houeko, Houin-Hounso, Lainta-Cogbe, Naogon, Soli, Zogba</li>
+      <li><strong>Djidja</strong> <span>— 12 arrondissements, 95 villages et quartiers :</span> Agondji, Agouna, Dan, Djidja Centre, Dohouime, Gobaix, Houto, Monsourou, Mougnon, Oumbegame, Setto, Zounkon</li>
+      <li><strong>Ouinhi</strong> <span>— 4 arrondissements, 40 villages et quartiers :</span> Dasso, Ouinhi Centre, Sagon, Tohoues</li>
+      <li><strong>Za-Kpota</strong> <span>— 8 arrondissements, 69 villages et quartiers :</span> Allahe, Assanlin, Houngome, Kpakpame, Kpozoun, Za-Kpota, Za-Tanta, Zeko</li>
+      <li><strong>Zagnanado</strong> <span>— 6 arrondissements, 43 villages et quartiers :</span> Agonlin-Houegbo, Baname, Don-Tan, Dovi, Kpedekpo, Zagnanado Centre</li>
+      <li><strong>Zogbodomey</strong> <span>— 11 arrondissements, 80 villages et quartiers :</span> Akiza, Avlame, Cana I, Cana Ii, Dome, Koussoukpa, Kpokissa, Massi, Tanwe-Hessou, Zogbodomey Centre, Zoukou</li>
+    </ul>
+  </details>
+  <footer>Données issues du projet <a href="https://github.com/nioperas06/bj-decoupage-territorial">bj-decoupage-territorial</a> de Junior Gantin, mises à jour le 6 novembre 2026. Code source et API : <a href="https://github.com/toundji/bj-decoupage-territorial">github.com/toundji/bj-decoupage-territorial</a>.</footer>
+</section>
+<!-- seo:content:end -->
 
 <script>
 const API = '/api/v1';

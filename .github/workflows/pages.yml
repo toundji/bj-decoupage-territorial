@@ -5,7 +5,7 @@ name: GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ['public/**', '.github/workflows/pages.yml']
+    paths: ['public/**', 'scripts/build-site.mjs', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -25,6 +25,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Contenu indexable, données structurées et sitemap, depuis data/decoupage.json
+      - run: node scripts/build-site.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

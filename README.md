@@ -38,9 +38,12 @@ Servie par l'API, elle lit les données en direct. Sans API (GitHub Pages), elle
 ```bash
 npm run build
 npm run export:json             # écrit public/data/decoupage.json
+npm run build:site              # contenu indexable, données structurées, sitemap.xml
 ```
 
-Le workflow `.github/workflows/pages.yml` publie `public/` sur GitHub Pages à chaque push sur `main` qui modifie ce dossier.
+Le workflow `.github/workflows/pages.yml` relance `build:site` puis publie `public/` sur GitHub Pages à chaque push sur `main` qui modifie ce dossier.
+
+`build:site` (sans base ni dépendance) génère, à partir de l'instantané JSON, la partie statique de la page lue par les moteurs de recherche : présentation, questions fréquentes, liste des départements, communes et arrondissements, données structurées schema.org (`Dataset`, `FAQPage`) et `sitemap.xml`.
 
 ### Export des données
 

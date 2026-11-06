@@ -21,6 +21,7 @@
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "seed": "node dist/database/seeds/seed.js",
     "export:json": "node dist/database/export-json.js",
+    "build:site": "node scripts/build-site.mjs",
     "typeorm": "typeorm -d dist/database/data-source.js"
   },
   "dependencies": {
