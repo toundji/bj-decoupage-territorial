@@ -74,7 +74,18 @@
   .results button:hover, .results button:focus { background: var(--surface-2); outline: none; }
   .results .empty { padding: 12px 14px; color: var(--muted); }
 
-  .crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 12px; font-size: 14px; min-height: 22px; }
+  .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; margin-bottom: 12px; }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 14px; min-height: 22px; }
+  .export { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .export b { color: var(--text); font-weight: 600; }
+  .export button {
+    padding: 5px 12px; font: inherit; font-weight: 600; color: var(--accent); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 7px; cursor: pointer;
+  }
+  .export button:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+  .export button:disabled { opacity: .5; cursor: progress; }
+  .export small { flex-basis: 100%; text-align: right; font-size: 12px; }
+  .export small:empty { display: none; }
   .crumbs button { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); cursor: pointer; }
   .crumbs button:hover { text-decoration: underline; }
   .crumbs .sep { color: var(--muted); }
@@ -145,7 +156,15 @@
     <input id="q" type="search" placeholder="Rechercher une commune, un arrondissement ou une localité…" autocomplete="off" aria-label="Recherche">
     <div class="results" id="results"></div>
   </div>
-  <nav class="crumbs" id="crumbs" aria-label="Fil d'Ariane"></nav>
+  <div class="toolbar">
+    <nav class="crumbs" id="crumbs" aria-label="Fil d'Ariane"></nav>
+    <div class="export" role="group" aria-label="Exporter">
+      <span>Exporter <b id="export-scope">le Bénin entier</b></span>
+      <button type="button" data-format="json" title="JSON imbriqué : départements → communes → arrondissements → localités">JSON</button>
+      <button type="button" data-format="sql" title="Script SQL (CREATE TABLE + INSERT) pour PostgreSQL, MySQL ou SQLite">SQL</button>
+      <small id="export-status" aria-live="polite"></small>
+    </div>
+  </div>
 
   <div class="layout">
     <div class="cols">
@@ -209,16 +228,13 @@ function apiSource() {
     search: (level, q) => get(`${LEVELS[level].path}?q=${encodeURIComponent(q)}&limit=8`),
     ruesCount: (id) => get(`localites/${id}/rues?limit=1`).then((r) => r.total, () => null),
     apiUrl: (level, id) => `${API}/${LEVELS[level].path}/${id}`,
+    snapshot: () => get('export'),
   };
 }
 
 // Instantané JSON (GitHub Pages ou API indisponible) : data/decoupage.json.
 function jsonSource(raw) {
-  const tables = ['departements', 'communes', 'arrondissements', 'localites'].map((name) => {
-    const { champs, lignes } = raw[name];
-    return lignes.map((l) => Object.fromEntries(champs.map((c, i) => [c, l[i]])));
-  });
-  const parentKey = [null, 'departementId', 'communeId', 'arrondissementId'];
+  const tables = decode(raw);
   const byId = tables.map((t) => new Map(t.map((x) => [x.id, x])));
   const byNom = (a, b) => a.nom.localeCompare(b.nom, 'fr');
   const kids = tables.map((t, l) => {
@@ -259,7 +275,18 @@ function jsonSource(raw) {
     },
     ruesCount: async () => null,
     apiUrl: () => null,
+    snapshot: async () => raw,
   };
+}
+
+// Instantané compact { champs, lignes } → 4 tableaux d'objets (départements → localités).
+const TABLE_NAMES = ['departements', 'communes', 'arrondissements', 'localites'];
+const parentKey = [null, 'departementId', 'communeId', 'arrondissementId'];
+function decode(raw) {
+  return TABLE_NAMES.map((name) => {
+    const { champs, lignes } = raw[name];
+    return lignes.map((l) => Object.fromEntries(champs.map((c, i) => [c, l[i]])));
+  });
 }
 
 // L'API d'abord ; à défaut (GitHub Pages), l'instantané JSON.
@@ -274,6 +301,171 @@ async function pickSource() {
 }
 
 let db;
+
+/* ------------------------------------------------------------------ *
+ * Export (JSON imbriqué ou script SQL) du Bénin entier ou de l'entité
+ * sélectionnée avec toutes ses subdivisions. Les parents de l'entité
+ * sont inclus pour garder une hiérarchie (et des clés étrangères) valide.
+ * ------------------------------------------------------------------ */
+
+// Lignes à exporter, par niveau, pour la portée { level, id } (null : tout).
+function subset(tables, scope) {
+  if (!scope) return tables;
+  const keep = [new Set(), new Set(), new Set(), new Set()];
+  // L'entité et ses descendants…
+  keep[scope.level].add(scope.id);
+  for (let l = scope.level + 1; l < 4; l++) {
+    for (const x of tables[l]) if (keep[l - 1].has(x[parentKey[l]])) keep[l].add(x.id);
+  }
+  // …et ses ancêtres.
+  let node = tables[scope.level].find((x) => x.id === scope.id);
+  for (let l = scope.level; l > 0; l--) {
+    const pid = node[parentKey[l]];
+    keep[l - 1].add(pid);
+    node = tables[l - 1].find((x) => x.id === pid);
+  }
+  return tables.map((t, l) => t.filter((x) => keep[l].has(x.id)));
+}
+
+function toNestedJson(t, meta) {
+  const byNom = (a, b) => a.nom.localeCompare(b.nom, 'fr');
+  const group = (rows, key) => {
+    const m = new Map();
+    for (const x of [...rows].sort(byNom)) { if (!m.has(x[key])) m.set(x[key], []); m.get(x[key]).push(x); }
+    return m;
+  };
+  const [loc, arr, com] = [group(t[3], 'arrondissementId'), group(t[2], 'communeId'), group(t[1], 'departementId')];
+  const departements = [...t[0]].sort(byNom).map((d) => ({
+    id: d.id, code: d.code, nom: d.nom, groupe: d.groupe, chefLieuId: d.chefLieuId,
+    communes: (com.get(d.id) || []).map((c) => ({
+      id: c.id, code: c.code, nom: c.nom, statut: c.statut, chefLieuId: c.chefLieuId,
+      arrondissements: (arr.get(c.id) || []).map((a) => ({
+        id: a.id, code: a.code, nom: a.nom, chefLieuId: a.chefLieuId,
+        localites: (loc.get(a.id) || []).map((x) => ({ id: x.id, nom: x.nom, type: x.type })),
+      })),
+    })),
+  }));
+  return JSON.stringify({ ...meta, departements }, null, 2);
+}
+
+function toSql(t, meta) {
+  const v = (x) => (x === null || x === undefined ? 'NULL' : typeof x === 'number' ? String(x) : `'${String(x).replace(/'/g, "''")}'`);
+  const insert = (table, cols, rows) => {
+    const out = [];
+    for (let i = 0; i < rows.length; i += 500) {
+      const chunk = rows.slice(i, i + 500).map((r) => `  (${cols.map(([, k]) => v(r[k])).join(', ')})`);
+      out.push(`INSERT INTO ${table} (${cols.map(([c]) => c).join(', ')}) VALUES\n${chunk.join(',\n')};`);
+    }
+    return out.join('\n\n');
+  };
+  const cols = {
+    departement: [['id', 'id'], ['code', 'code'], ['nom', 'nom'], ['groupe', 'groupe'], ['chef_lieu_id', 'chefLieuId']],
+    commune: [['id', 'id'], ['code', 'code'], ['nom', 'nom'], ['statut', 'statut'], ['departement_id', 'departementId'], ['chef_lieu_id', 'chefLieuId']],
+    arrondissement: [['id', 'id'], ['code', 'code'], ['nom', 'nom'], ['commune_id', 'communeId'], ['chef_lieu_id', 'chefLieuId']],
+    localite: [['id', 'id'], ['nom', 'nom'], ['type', 'type'], ['arrondissement_id', 'arrondissementId']],
+  };
+  return `-- Découpage territorial du Bénin
+-- Portée : ${meta.portee}
+-- Données du ${meta.donneesDu}, exporté le ${meta.exporteLe}
+-- Totaux : ${t.map((x, l) => `${x.length} ${TABLE_NAMES[l]}`).join(', ')}
+--
+-- SQL standard : PostgreSQL, MySQL / MariaDB, SQLite.
+-- chef_lieu_id (département → commune, commune → arrondissement,
+-- arrondissement → localité) n'a pas de clé étrangère : la référence est
+-- circulaire et le chef-lieu peut être hors de la portée exportée.
+
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS departement (
+  id INTEGER PRIMARY KEY,
+  code VARCHAR(10),
+  nom VARCHAR(100) NOT NULL,
+  groupe VARCHAR(30),
+  chef_lieu_id INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS commune (
+  id INTEGER PRIMARY KEY,
+  code VARCHAR(20),
+  nom VARCHAR(100) NOT NULL,
+  statut VARCHAR(20),
+  departement_id INTEGER NOT NULL,
+  chef_lieu_id INTEGER,
+  FOREIGN KEY (departement_id) REFERENCES departement (id)
+);
+
+CREATE TABLE IF NOT EXISTS arrondissement (
+  id INTEGER PRIMARY KEY,
+  code VARCHAR(20),
+  nom VARCHAR(150) NOT NULL,
+  commune_id INTEGER NOT NULL,
+  chef_lieu_id INTEGER,
+  FOREIGN KEY (commune_id) REFERENCES commune (id)
+);
+
+CREATE TABLE IF NOT EXISTS localite (
+  id INTEGER PRIMARY KEY,
+  nom VARCHAR(150) NOT NULL,
+  type VARCHAR(20),
+  arrondissement_id INTEGER NOT NULL,
+  FOREIGN KEY (arrondissement_id) REFERENCES arrondissement (id)
+);
+
+${Object.entries(cols).map(([table, c], l) => insert(table, c, t[l])).filter(Boolean).join('\n\n')}
+
+COMMIT;
+`;
+}
+
+const slug = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+function currentScope() {
+  for (let l = 3; l >= 0; l--) if (state.selected[l]) return { level: l, id: state.selected[l].id, item: state.selected[l] };
+  return null;
+}
+
+function renderExportScope() {
+  const s = currentScope();
+  $('export-scope').textContent = s ? `${s.item.nom} (${LEVELS[s.level].label.toLowerCase()})` : 'le Bénin entier';
+}
+
+async function exportData(format) {
+  const status = $('export-status');
+  const buttons = document.querySelectorAll('.export button');
+  buttons.forEach((b) => (b.disabled = true));
+  status.textContent = 'Préparation…';
+  try {
+    const raw = await db.snapshot();
+    const scope = currentScope();
+    const t = subset(decode(raw), scope);
+    const portee = scope ? `${LEVELS[scope.level].label} ${scope.item.nom} (id ${scope.id}) et ses subdivisions` : 'Bénin entier';
+    const today = new Date().toISOString().slice(0, 10);
+    const meta = {
+      source: 'bj-decoupage-territorial',
+      portee,
+      donneesDu: raw.genereLe.slice(0, 10),
+      exporteLe: today,
+      totaux: Object.fromEntries(TABLE_NAMES.map((n, l) => [n, t[l].length])),
+    };
+    const body = format === 'sql' ? toSql(t, meta) : toNestedJson(t, meta);
+    const name = `decoupage-benin${scope ? '-' + slug(scope.item.nom) : ''}-${today}.${format}`;
+    const type = format === 'sql' ? 'application/sql' : 'application/json';
+    const url = URL.createObjectURL(new Blob([body], { type: type + ';charset=utf-8' }));
+    const a = el('a', { href: url, download: name });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const kb = Math.max(1, Math.round(body.length / 1024));
+    status.textContent = `${name} · ${fmt(kb)} Ko`;
+  } catch (e) {
+    status.textContent = '';
+    showError(e);
+  } finally {
+    buttons.forEach((b) => (b.disabled = false));
+  }
+}
+document.querySelectorAll('.export button').forEach((b) => b.addEventListener('click', () => exportData(b.dataset.format)));
 
 /* ------------------------------------------------------------------ *
  * Interface
@@ -325,6 +517,8 @@ async function select(level, id, { updateHash = true } = {}) {
 }
 
 function renderCrumbs() {
+  renderExportScope();
+  $('export-status').textContent = '';
   const c = $('crumbs');
   c.replaceChildren();
   const root = el('button', { type: 'button', textContent: 'Bénin' });

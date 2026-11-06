@@ -40,6 +40,15 @@ npm run export:json             # écrit public/data/decoupage.json
 
 Le workflow `.github/workflows/pages.yml` publie `public/` sur GitHub Pages à chaque push sur `main` qui modifie ce dossier.
 
+### Export des données
+
+La barre « Exporter » de la page télécharge le Bénin entier, ou l'entité sélectionnée avec toutes ses subdivisions (ses parents sont inclus pour garder une hiérarchie complète) :
+
+- **JSON** : arborescence imbriquée `departements[].communes[].arrondissements[].localites[]`, avec la portée et les totaux ;
+- **SQL** : `CREATE TABLE IF NOT EXISTS` + `INSERT` (tables `departement`, `commune`, `arrondissement`, `localite`), en SQL standard pour PostgreSQL, MySQL / MariaDB et SQLite.
+
+Les fichiers sont générés dans le navigateur, à partir de `GET /api/v1/export` (ou de l'instantané JSON sans API).
+
 ## Endpoints principaux
 
 | Ressource | Routes |

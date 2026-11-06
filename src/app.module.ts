@@ -6,6 +6,7 @@ import { BatimentsModule } from './batiments/batiments.module.js';
 import { CommunesModule } from './communes/communes.module.js';
 import { dataSourceOptions } from './database/data-source.js';
 import { DepartementsModule } from './departements/departements.module.js';
+import { ExportModule } from './export/export.module.js';
 import { LocalitesModule } from './localites/localites.module.js';
 import { PropositionsModule } from './propositions/propositions.module.js';
 import { RuesModule } from './rues/rues.module.js';
@@ -24,6 +25,7 @@ import { RuesModule } from './rues/rues.module.js';
     RuesModule,
     PropositionsModule,
     BatimentsModule,
+    ExportModule,
   ],
 })
 export class AppModule {}
