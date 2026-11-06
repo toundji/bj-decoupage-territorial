@@ -23,8 +23,22 @@ npm run seed                    # extensions, schéma, import des 12 / 77 / 546 
 npm run start:dev
 ```
 
+- Page d'exploration : http://localhost:3000/
 - API : http://localhost:3000/api/v1
 - Swagger : http://localhost:3000/docs (JSON : `/docs/openapi.json`)
+
+## Page d'exploration et version statique
+
+`public/index.html` permet de parcourir départements → communes → arrondissements → localités, avec recherche et liens directs (`#/commune/16`, `#/localite/3402`…).
+
+Servie par l'API, elle lit les données en direct. Sans API (GitHub Pages), elle lit l'instantané `public/data/decoupage.json`, à régénérer après chaque modification de la base :
+
+```bash
+npm run build
+npm run export:json             # écrit public/data/decoupage.json
+```
+
+Le workflow `.github/workflows/pages.yml` publie `public/` sur GitHub Pages à chaque push sur `main` qui modifie ce dossier.
 
 ## Endpoints principaux
 

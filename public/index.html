@@ -49,6 +49,8 @@
   .top a { color: var(--accent); font-size: 14px; text-decoration: none; }
   .top a:hover { text-decoration: underline; }
   .sub { color: var(--muted); margin: 4px 0 18px; font-size: 14px; }
+  .source { display: inline-block; margin-left: 4px; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); font-size: 12px; }
+  .source:empty { display: none; }
 
   .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
   .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; box-shadow: var(--shadow); }
@@ -126,9 +128,9 @@
 <header>
   <div class="top">
     <h1>Découpage territorial du Bénin</h1>
-    <a href="/docs">Documentation de l'API →</a>
+    <a id="docs-link" href="/docs" hidden>Documentation de l'API →</a>
   </div>
-  <p class="sub">Départements, communes, arrondissements et localités (villages et quartiers).</p>
+  <p class="sub">Départements, communes, arrondissements et localités (villages et quartiers). <span class="source" id="source"></span></p>
   <div class="stats">
     <div class="stat"><b id="n-dep">–</b><span>départements</span></div>
     <div class="stat"><b id="n-com">–</b><span>communes</span></div>
@@ -168,24 +170,114 @@ const LEVELS = [
 const state = { items: [[], [], [], []], selected: [null, null, null, null] };
 const cols = [...document.querySelectorAll('.col')];
 const $ = (id) => document.getElementById(id);
-
-async function get(path) {
-  const res = await fetch(API + '/' + path);
-  if (!res.ok) throw new Error(`${res.status} sur /${path}`);
-  return res.json();
-}
-const rows = (r) => (Array.isArray(r) ? r : r.data);
-const showError = (e) => { $('error').textContent = 'Erreur : ' + e.message; $('error').classList.add('open'); };
 const fmt = (n) => n.toLocaleString('fr-FR');
+const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const el = (tag, props = {}, ...kids) => { const n = Object.assign(document.createElement(tag), props); n.append(...kids); return n; };
+const showError = (e) => { $('error').textContent = 'Erreur : ' + e.message; $('error').classList.add('open'); };
 
-// Charge les enfants de l'élément choisi au niveau `level - 1`.
-async function childrenOf(level, parentId) {
-  if (level === 0) return rows(await get('departements'));
-  const parentPath = LEVELS[level - 1].path;
-  const childPath = LEVELS[level].path;
-  return rows(await get(`${parentPath}/${parentId}/${childPath}?limit=500`));
+/* ------------------------------------------------------------------ *
+ * Sources de données. Les deux exposent la même interface :
+ *   totals()                 → [nDep, nCom, nArr, nLoc]
+ *   children(level, parentId) → liste triée par nom (level 0 : départements)
+ *   full(level, id)          → élément avec parents imbriqués et chefLieu
+ *   homologue(id)            → département homologue ou null
+ *   search(level, q)         → { data: [...8 max], total }
+ *   ruesCount(id)            → nombre de rues de la localité, ou null
+ *   apiUrl(level, id)        → URL de l'API, ou null
+ * ------------------------------------------------------------------ */
+
+// API NestJS (page servie par l'API).
+function apiSource() {
+  async function get(path) {
+    const res = await fetch(API + '/' + path);
+    if (!res.ok) throw new Error(`${res.status} sur /${path}`);
+    return res.json();
+  }
+  const rows = (r) => (Array.isArray(r) ? r : r.data);
+  return {
+    label: 'API en direct',
+    async totals() {
+      const [d, ...rest] = await Promise.all([get('departements'), ...LEVELS.slice(1).map((l) => get(`${l.path}?limit=1`))]);
+      return [d.length, ...rest.map((r) => r.total)];
+    },
+    async children(level, parentId) {
+      if (level === 0) return rows(await get('departements'));
+      return rows(await get(`${LEVELS[level - 1].path}/${parentId}/${LEVELS[level].path}?limit=500`));
+    },
+    full: (level, id) => get(`${LEVELS[level].path}/${id}`),
+    homologue: (id) => get(`departements/${id}/homologue`).catch(() => null),
+    search: (level, q) => get(`${LEVELS[level].path}?q=${encodeURIComponent(q)}&limit=8`),
+    ruesCount: (id) => get(`localites/${id}/rues?limit=1`).then((r) => r.total, () => null),
+    apiUrl: (level, id) => `${API}/${LEVELS[level].path}/${id}`,
+  };
 }
+
+// Instantané JSON (GitHub Pages ou API indisponible) : data/decoupage.json.
+function jsonSource(raw) {
+  const tables = ['departements', 'communes', 'arrondissements', 'localites'].map((name) => {
+    const { champs, lignes } = raw[name];
+    return lignes.map((l) => Object.fromEntries(champs.map((c, i) => [c, l[i]])));
+  });
+  const parentKey = [null, 'departementId', 'communeId', 'arrondissementId'];
+  const byId = tables.map((t) => new Map(t.map((x) => [x.id, x])));
+  const byNom = (a, b) => a.nom.localeCompare(b.nom, 'fr');
+  const kids = tables.map((t, l) => {
+    const m = new Map();
+    if (l === 0) return m;
+    for (const x of t) { const p = x[parentKey[l]]; if (!m.has(p)) m.set(p, []); m.get(p).push(x); }
+    for (const list of m.values()) list.sort(byNom);
+    return m;
+  });
+  const sorted = tables.map((t) => [...t].sort(byNom));
+  const parentProp = [null, 'departement', 'commune', 'arrondissement'];
+  // Élément avec ses parents imbriqués, comme le renvoie l'API.
+  const withParents = (level, x) => {
+    if (!x) return null;
+    const out = { ...x };
+    if (level > 0) out[parentProp[level]] = withParents(level - 1, byId[level - 1].get(x[parentKey[level]]));
+    return out;
+  };
+  const date = new Date(raw.genereLe).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  return {
+    label: `Instantané JSON du ${date}`,
+    totals: async () => tables.map((t) => t.length),
+    children: async (level, parentId) => (level === 0 ? sorted[0] : kids[level].get(parentId) || []),
+    async full(level, id) {
+      const x = withParents(level, byId[level].get(id));
+      if (!x) throw new Error(`${LEVELS[level].label} ${id} introuvable`);
+      if (level < 3 && x.chefLieuId) x.chefLieu = byId[level + 1].get(x.chefLieuId) || null;
+      return x;
+    },
+    homologue: async (id) => {
+      const d = byId[0].get(id);
+      return tables[0].find((x) => x.groupe === d.groupe && x.id !== id) || null;
+    },
+    search: async (level, q) => {
+      const f = norm(q);
+      const hits = sorted[level].filter((x) => norm(x.nom).includes(f));
+      return { data: hits.slice(0, 8), total: hits.length };
+    },
+    ruesCount: async () => null,
+    apiUrl: () => null,
+  };
+}
+
+// L'API d'abord ; à défaut (GitHub Pages), l'instantané JSON.
+async function pickSource() {
+  try {
+    const res = await fetch(API + '/departements', { headers: { accept: 'application/json' } });
+    if (res.ok && (res.headers.get('content-type') || '').includes('json')) return apiSource();
+  } catch { /* pas d'API */ }
+  const res = await fetch('data/decoupage.json');
+  if (!res.ok) throw new Error('ni API ni data/decoupage.json disponibles');
+  return jsonSource(await res.json());
+}
+
+let db;
+
+/* ------------------------------------------------------------------ *
+ * Interface
+ * ------------------------------------------------------------------ */
 
 function tagFor(level, item) {
   if (level === 0) return item.code || '';
@@ -196,7 +288,7 @@ function tagFor(level, item) {
 
 function renderCol(level) {
   const col = cols[level];
-  const filter = col.querySelector('input').value.trim().toLowerCase();
+  const f = norm(col.querySelector('input').value.trim());
   const items = state.items[level];
   const list = col.querySelector('.list');
   col.querySelector('small').textContent = items.length ? fmt(items.length) : '';
@@ -206,8 +298,6 @@ function renderCol(level) {
     list.append(el('div', { className: 'placeholder', textContent: msg }));
     return;
   }
-  const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const f = norm(filter);
   for (const item of items) {
     if (f && !norm(item.nom).includes(f)) continue;
     const btn = el('button', { type: 'button' }, el('span', { textContent: item.nom }), el('span', { className: 'tag', textContent: tagFor(level, item) }));
@@ -227,7 +317,7 @@ async function select(level, id, { updateHash = true } = {}) {
   renderCrumbs();
   if (updateHash) history.replaceState(null, '', `#/${LEVELS[level].key}/${id}`);
   if (level < 3) {
-    try { state.items[level + 1] = await childrenOf(level + 1, id); } catch (e) { showError(e); }
+    try { state.items[level + 1] = await db.children(level + 1, id); } catch (e) { showError(e); }
     if (state.selected[level]?.id !== id) return; // sélection changée entre-temps
     renderCol(level + 1);
   }
@@ -268,11 +358,11 @@ async function renderDetail(level, item) {
   row('Code', item.code);
 
   try {
-    const full = await get(`${L.path}/${item.id}`);
+    const full = await db.full(level, item.id);
     if (stale()) return;
     if (level === 0) {
       row('Groupe', full.groupe);
-      const h = await get(`departements/${item.id}/homologue`).catch(() => null);
+      const h = await db.homologue(item.id);
       if (stale()) return;
       if (h) row('Homologue', link(h.nom, () => navigate('departement', h.id)));
       if (full.chefLieu) row('Chef-lieu', link(full.chefLieu.nom, () => navigate('commune', full.chefLieu.id)));
@@ -285,14 +375,14 @@ async function renderDetail(level, item) {
     if (level === 3) row('Type', full.type ? full.type.toLowerCase() : 'non renseigné');
     if (level < 3) row(LEVELS[level + 1].label + 's', fmt(state.items[level + 1].length));
     if (level === 3) {
-      const r = await get(`localites/${item.id}/rues?limit=1`).catch(() => null);
+      const n = await db.ruesCount(item.id);
       if (stale()) return;
-      if (r) row('Rues', fmt(r.total));
+      if (n !== null) row('Rues', fmt(n));
     }
   } catch (e) { if (stale()) return; showError(e); }
 
-  const api = `${API}/${L.path}/${item.id}`;
-  d.append(el('div', { className: 'api' }, el('a', { href: api, target: '_blank', rel: 'noopener', textContent: 'GET ' + api })));
+  const api = db.apiUrl(level, item.id);
+  if (api) d.append(el('div', { className: 'api' }, el('a', { href: api, target: '_blank', rel: 'noopener', textContent: 'GET ' + api })));
 }
 
 function renderEmptyDetail() {
@@ -304,12 +394,12 @@ function renderEmptyDetail() {
   );
 }
 
-async function reset() {
+function reset() {
   for (let l = 0; l < 4; l++) { state.selected[l] = null; if (l) state.items[l] = []; cols[l].querySelector('input').value = ''; }
   for (let l = 0; l < 4; l++) renderCol(l);
   renderCrumbs();
   renderEmptyDetail();
-  history.replaceState(null, '', location.pathname);
+  history.replaceState(null, '', location.pathname + location.search);
 }
 
 // Va directement à une entité : on remonte sa hiérarchie puis on sélectionne chaque niveau.
@@ -317,7 +407,7 @@ async function navigate(kind, id) {
   try {
     const level = LEVELS.findIndex((l) => l.key === kind);
     if (level < 0) return;
-    const full = await get(`${LEVELS[level].path}/${id}`);
+    const full = await db.full(level, id);
     const chain = [];
     let node = full;
     for (let l = level; l >= 0; l--) {
@@ -326,7 +416,7 @@ async function navigate(kind, id) {
     }
     for (let l = 0; l <= level; l++) {
       if (l > 0 && !state.items[l].some((x) => x.id === chain[l])) {
-        state.items[l] = await childrenOf(l, chain[l - 1]);
+        state.items[l] = await db.children(l, chain[l - 1]);
       }
       await select(l, chain[l], { updateHash: l === level });
     }
@@ -347,21 +437,22 @@ $('q').addEventListener('focus', () => { if ($('results').childElementCount) $('
 async function runSearch() {
   const q = $('q').value.trim();
   const box = $('results');
-  if (q.length < 2) { box.classList.remove('open'); box.replaceChildren(); return; }
+  if (q.length < 2 || !db) { box.classList.remove('open'); box.replaceChildren(); return; }
   const seq = ++searchSeq;
   try {
-    const kinds = LEVELS.slice(1);
-    const res = await Promise.all(kinds.map((k) => get(`${k.path}?q=${encodeURIComponent(q)}&limit=8`)));
+    const levels = [1, 2, 3];
+    const res = await Promise.all(levels.map((l) => db.search(l, q)));
     if (seq !== searchSeq) return;
     box.replaceChildren();
     res.forEach((r, i) => {
       if (!r.data.length) return;
-      box.append(el('h4', { textContent: `${kinds[i].label}s (${fmt(r.total)})` }));
+      const L = LEVELS[levels[i]];
+      box.append(el('h4', { textContent: `${L.label}s (${fmt(r.total)})` }));
       for (const item of r.data) {
         const b = el('button', { type: 'button', textContent: item.nom });
         b.addEventListener('click', () => {
           box.classList.remove('open');
-          navigate(kinds[i].key, item.id);
+          navigate(L.key, item.id);
         });
         box.append(b);
       }
@@ -373,26 +464,30 @@ async function runSearch() {
 
 cols.forEach((col, l) => col.querySelector('input').addEventListener('input', () => renderCol(l)));
 
+// Liens directs : #/departement/3, #/commune/16, #/arrondissement/1, #/localite/1
+function fromHash() {
+  const m = location.hash.match(/^#\/(\w+)\/(\d+)$/);
+  if (m && db) navigate(m[1], Number(m[2]));
+}
+window.addEventListener('hashchange', fromHash);
+
 async function init() {
   renderEmptyDetail();
   renderCrumbs();
   try {
-    state.items[0] = await childrenOf(0);
+    db = await pickSource();
+    $('source').textContent = db.label;
+    $('docs-link').hidden = !db.apiUrl(0, 1);
+    state.items[0] = await db.children(0);
     for (let l = 0; l < 4; l++) renderCol(l);
-    const [c, a, lo] = await Promise.all(['communes', 'arrondissements', 'localites'].map((p) => get(`${p}?limit=1`)));
-    $('n-dep').textContent = fmt(state.items[0].length);
-    $('n-com').textContent = fmt(c.total);
-    $('n-arr').textContent = fmt(a.total);
-    $('n-loc').textContent = fmt(lo.total);
+    const [d, c, a, lo] = await db.totals();
+    $('n-dep').textContent = fmt(d);
+    $('n-com').textContent = fmt(c);
+    $('n-arr').textContent = fmt(a);
+    $('n-loc').textContent = fmt(lo);
     fromHash();
   } catch (e) { showError(e); }
 }
-// Liens directs : #/departement/3, #/commune/16, #/arrondissement/1, #/localite/1
-function fromHash() {
-  const m = location.hash.match(/^#\/(\w+)\/(\d+)$/);
-  if (m) navigate(m[1], Number(m[2]));
-}
-window.addEventListener('hashchange', fromHash);
 init();
 </script>
 </body>
