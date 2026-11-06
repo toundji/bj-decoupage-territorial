@@ -1,5 +1,5 @@
 {
-  "name": "bj-decoupage-territorial-api",
+  "name": "bj-decoupage-territorial",
   "version": "0.0.1",
   "description": "API publique du découpage territorial du Bénin (NestJS + PostgreSQL/PostGIS)",
   "author": "",

@@ -1,6 +1,8 @@
-# bj-decoupage-territorial-api
+# bj-decoupage-territorial
 
 API publique du découpage territorial du Bénin : **départements → communes → arrondissements → localités (villages / quartiers) → rues → bâtiments**, avec géométries PostGIS servies en GeoJSON et propositions citoyennes de noms de rues.
+
+**Explorer les données en ligne : https://toundji.github.io/bj-decoupage-territorial/** (navigation, recherche, export JSON et SQL).
 
 Refonte en NestJS du projet [bj-decoupage-territorial](https://github.com/nioperas06/bj-decoupage-territorial) (AdonisJS) de Junior Gantin, dont proviennent les données initiales.
 
